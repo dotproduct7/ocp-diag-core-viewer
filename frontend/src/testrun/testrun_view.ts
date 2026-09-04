@@ -1,5 +1,6 @@
 import { formatDate } from '@angular/common';
-import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewEncapsulation, inject } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -26,6 +27,7 @@ export class TestRunViewComponent implements OnInit {
   summary: Array<[string, unknown]> = [];
   errorsDataSource!: MatTableDataSource<Error>;
   @ViewChild(MatSort) errorsSort!: MatSort;
+  private titleService = inject(Title);
   private dataReadySubject = new BehaviorSubject<boolean>(false);
   dataReady$ = this.dataReadySubject.asObservable();
   ngOnInit() {
@@ -57,6 +59,12 @@ export class TestRunViewComponent implements OnInit {
   private initSummary() {
     const testrun = this.testrunService.get();
 
+    let maybeTestNamePrefix = '';
+    if (testrun.name) {
+      maybeTestNamePrefix = testrun.name + ' - ';
+    }
+    // for example "cool test name - OCP Diag Result Viewer"
+    this.titleService.setTitle(maybeTestNamePrefix + 'OCP Diag Result Viewer');
     this.summary.push(['Name', testrun.name]);
     this.summary.push(['Version', testrun.version]);
     this.summary.push(['Tags', testrun.tags.join(', ')]);
